@@ -17,6 +17,7 @@ function build(node) {
     let cWitness = node.findConjunction();
     if (cWitness) {
       let toBeAdded = [];
+
       if (!node.contains(cWitness.f1)) {
         toBeAdded.push(cWitness.f1);
       }
@@ -32,6 +33,7 @@ function build(node) {
     }
 
     let ncWitness = node.findConjunctionNegation();
+
     if (ncWitness[0]) {
       if (ncWitness[1] && ncWitness[2]) {
         let successor1 = node.createSuccessor(ncWitness[1], true);
@@ -56,8 +58,8 @@ function build(node) {
     }
 
     node.isTablo = true;
-
     let mfWitness = node.findExtendedTabloWitness();
+
     if (mfWitness[0]) {
       if (mfWitness[1] && mfWitness[2]) {
         let successor1 = node.createSuccessor(mfWitness[1], true);
@@ -83,6 +85,7 @@ function build(node) {
     node.isExtendedTablo = true;
 
     let nKFormulas = node.findNKF();
+
     if (nKFormulas.length > 0) {
       var result = true;
 
@@ -118,10 +121,14 @@ function KmSAT(formula) {
 }
 
 function main() {
-  let input = "a&!a";
+  let input = "(a&a)&b&c";
   let rootFormula = Parser.parse(input);
+  console.log(rootFormula);
   let result = KmSAT(rootFormula);
-  console.log("Zadovoljivost formule: ", result);
+  console.log(
+    "\n--------------------------------\nZadovoljivost formule: ",
+    result
+  );
 }
 
 main();

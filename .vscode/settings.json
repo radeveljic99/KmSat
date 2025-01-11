@@ -1,3 +1,4 @@
 {
-    "editor.fontFamily": "Menlo"
+    "editor.fontFamily": "Fira Code",
+    "editor.fontSize": 16
 }
