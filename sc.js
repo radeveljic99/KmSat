@@ -127,14 +127,20 @@ function KmSAT(formula) {
 }
 
 function main() {
-  let input = "!(!K1a&b&c)";
-  let rootFormula = new FormulaParser(input).parse();
-  console.log("rootFormula = ", rootFormula);
-  let result = KmSAT(rootFormula);
-  console.log(
-    "\n--------------------------------\nZadovoljivost formule: ",
-    result
-  );
+  let input = "(a&!b)&b";
+  try {
+    let rootFormula = new FormulaParser(input).parse();
+    console.log("rootFormula = ", rootFormula);
+    let result = KmSAT(rootFormula);
+    console.log(
+      "\n--------------------------------\nZadovoljivost formule: ",
+      result
+    );
+  } catch (e) {
+    // there could be errors for invalid input with invalid order of elements
+    // or invalid operators
+    console.log(e);
+  }
 }
 
 main();

@@ -1,5 +1,4 @@
 const {
-  Formula,
   BinaryOperatorFormula,
   UnaryOperatorFormula,
   Literal,
@@ -23,27 +22,26 @@ class FormulaParser {
   }
 
   parseFormula() {
-    let f1 = this.formulaTypeTwo();
+    console.log("calling parse formula");
+    let f1 = this.parseFirstFormula();
+    console.log("f1 = ", f1);
     if (f1 == null) return null;
-    let f2 = this.parseFormulaNext();
+    let f2 = this.parseSecondFormula();
+    console.log("f2 = ", f2);
     if (f2 == null) return f1;
     return new BinaryOperatorFormula(f1, "&", f2);
   }
 
-  parseFormulaNext() {
+  parseSecondFormula() {
     if (this.formulaString[0] == "&") {
       this.formulaString = this.formulaString.substring(1);
       return this.parseFormula();
     } else return null;
   }
 
-  isUnaryFormula() {
-    return this.formulaString[0] == "!" || this.formulaString[0] == "K";
-  }
-
-  formulaTypeTwo() {
+  parseFirstFormula() {
     if (!this.isUnaryFormula()) {
-      return this.formulaTypeThree();
+      return this.createLiteralOrReparse();
     }
 
     // this is a logic for creating unary formula
@@ -58,22 +56,27 @@ class FormulaParser {
         this.formulaString[1] == "2" ||
         this.formulaString[1] == "3"
       ) {
-        operator = this.formulaString[0] + this.formulaString[1];
-        this.formulaString = this.formulaString.substring(2);
+        operator = this.formulaString[0] + this.formulaString[1]; // Operators is either K1, K2, K3
+        this.formulaString = this.formulaString.substring(2); // we prepare global formulaString for next recursion
       } else {
         throw new Error("Unknown operator");
       }
     } else {
-      operator = this.formulaString[0];
+      operator = this.formulaString[0]; // this must be ! ( negation operator )
       this.formulaString = this.formulaString.substring(1);
     }
 
-    let newFormula = this.formulaTypeTwo();
+    // we continue to create formula recursevly
+    let newFormula = this.parseFirstFormula();
 
+    // when recursion finishes we add formula to this unary formula with operator we jst created
     return new UnaryOperatorFormula(operator, newFormula);
   }
 
-  formulaTypeThree() {
+  createLiteralOrReparse() {
+    // if formula starts with letter we create a literal for it
+    // if it starts with ( we remove it from global formula and then we call parse, to parse inside of formula)
+
     if (this.isLetter(this.formulaString[0])) {
       let charLiteral = this.formulaString[0];
       this.formulaString = this.formulaString.substring(1);
@@ -86,6 +89,10 @@ class FormulaParser {
     } else {
       throw new Error("Unknown character type three");
     }
+  }
+
+  isUnaryFormula() {
+    return this.formulaString[0] == "!" || this.formulaString[0] == "K";
   }
 
   isLetter(str) {
