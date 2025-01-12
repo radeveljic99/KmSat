@@ -1,71 +1,96 @@
-module.exports = { parse };
+const {
+  Formula,
+  BinaryOperatorFormula,
+  UnaryOperatorFormula,
+  Literal,
+} = require("./formula");
 
-const Formulas = require("./formula");
+class FormulaParser {
+  constructor(formulaString) {
+    this.setFormulaString(formulaString);
+  }
 
-var globalFormula = "";
+  setFormulaString(formula) {
+    this.formulaString = formula;
+  }
 
-function parse(sFormula) {
-  globalFormula = sFormula;
-  let formula = parseFormula();
-  return formula;
-}
+  setFormula(formula) {
+    this.formula = formula;
+  }
 
-function parseFormula() {
-  let f1 = formulaTypeTwo();
-  if (f1 == null) return null;
-  let f2 = parseFormulaNext();
-  if (f2 == null) return f1;
-  return new Formulas.BinaryOperatorFormula(f1, "&", f2);
-}
+  parse() {
+    return this.parseFormula();
+  }
 
-function parseFormulaNext() {
-  if (globalFormula[0] == "&") {
-    globalFormula = globalFormula.substring(1);
-    return parseFormula();
-  } else return null;
-}
+  parseFormula() {
+    let f1 = this.formulaTypeTwo();
+    if (f1 == null) return null;
+    let f2 = this.parseFormulaNext();
+    if (f2 == null) return f1;
+    return new BinaryOperatorFormula(f1, "&", f2);
+  }
 
-function formulaTypeTwo() {
-  if (globalFormula[0] == "!" || globalFormula[0] == "K") {
+  parseFormulaNext() {
+    if (this.formulaString[0] == "&") {
+      this.formulaString = this.formulaString.substring(1);
+      return this.parseFormula();
+    } else return null;
+  }
+
+  isUnaryFormula() {
+    return this.formulaString[0] == "!" || this.formulaString[0] == "K";
+  }
+
+  formulaTypeTwo() {
+    if (!this.isUnaryFormula()) {
+      return this.formulaTypeThree();
+    }
+
+    // this is a logic for creating unary formula
+
     let operator;
 
-    if (globalFormula[0] == "K") {
+    //this if checks for operators, beacuase we can have operators that are strings or legnth 1 or more with K1, K2, K3
+
+    if (this.formulaString[0] == "K") {
       if (
-        globalFormula[1] == "1" ||
-        globalFormula[1] == "2" ||
-        globalFormula[1] == "3"
+        this.formulaString[1] == "1" ||
+        this.formulaString[1] == "2" ||
+        this.formulaString[1] == "3"
       ) {
-        operator = globalFormula[0] + globalFormula[1];
-        globalFormula = globalFormula.substring(2);
+        operator = this.formulaString[0] + this.formulaString[1];
+        this.formulaString = this.formulaString.substring(2);
       } else {
         throw new Error("Unknown operator");
       }
     } else {
-      operator = globalFormula[0];
-      globalFormula = globalFormula.substring(1);
+      operator = this.formulaString[0];
+      this.formulaString = this.formulaString.substring(1);
     }
 
-    let newFormula = formulaTypeTwo();
+    let newFormula = this.formulaTypeTwo();
 
-    return new Formulas.UnaryOperatorFormula(operator, newFormula);
-  } else return formulaTypeThree();
-}
+    return new UnaryOperatorFormula(operator, newFormula);
+  }
 
-function formulaTypeThree() {
-  if (isLetter(globalFormula[0])) {
-    let charLiteral = globalFormula[0];
-    globalFormula = globalFormula.substring(1);
-    return new Formulas.Literal(charLiteral);
-  } else if (globalFormula[0] == "(") {
-    globalFormula = globalFormula.substring(1);
-    let f = parseFormula();
-    globalFormula = globalFormula.substring(1);
-    return f;
-  } else {
-    throw new Error("Unknown character type three");
+  formulaTypeThree() {
+    if (this.isLetter(this.formulaString[0])) {
+      let charLiteral = this.formulaString[0];
+      this.formulaString = this.formulaString.substring(1);
+      return new Literal(charLiteral);
+    } else if (this.formulaString[0] == "(") {
+      this.formulaString = this.formulaString.substring(1);
+      let f = this.parseFormula();
+      this.formulaString = this.formulaString.substring(1);
+      return f;
+    } else {
+      throw new Error("Unknown character type three");
+    }
+  }
+
+  isLetter(str) {
+    return str.length === 1 && str.match(/[a-z]/i);
   }
 }
 
-function isLetter(str) {
-  return str.length === 1 && str.match(/[a-z]/i);
-}
+module.exports = { FormulaParser };

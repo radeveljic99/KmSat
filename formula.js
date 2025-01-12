@@ -6,9 +6,9 @@ class Formula {
 
     if (this.isEqualTo(negationOfOther)) {
       return true;
-    } else {
-      return false;
     }
+
+    return false;
   }
 
   isDoubleNegation() {
@@ -21,7 +21,9 @@ class Formula {
           }
         }
       }
-    } else return false;
+    }
+
+    return false;
   }
 
   print() {
@@ -31,9 +33,9 @@ class Formula {
   getNegation() {
     if (this.operator && this.operator == "!") {
       return this.formula;
-    } else {
-      return new UnaryOperatorFormula("!", this);
     }
+
+    return new UnaryOperatorFormula("!", this);
   }
 }
 

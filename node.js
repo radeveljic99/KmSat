@@ -41,17 +41,20 @@ class Node {
 
   createSuccessor(formula, deepCopy) {
     let newFormulas;
+
     if (deepCopy) {
       newFormulas = this.deepCopyFormulas();
     } else {
       newFormulas = this.formulas;
     }
+
     newFormulas.push(formula);
     let successor = new Node(
       this.label + ", " + formula.toTextual(),
       newFormulas,
       this
     );
+
     this.successors.push(successor);
     return successor;
   }
