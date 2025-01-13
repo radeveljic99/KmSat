@@ -12,14 +12,11 @@ class Formula {
   }
 
   isDoubleNegation() {
-    if (this.type == "Unary") {
-      if (this.operator == "!") {
-        let formula = this.formula;
-        if (formula.type == "Unary") {
-          if (formula.operator == "!") {
-            return true;
-          }
-        }
+    if (this.type == "Unary" && this.operator == "!") {
+      let formula = this.formula;
+
+      if (formula.type == "Unary" && formula.operator == "!") {
+        return true;
       }
     }
 
@@ -140,6 +137,7 @@ class Literal extends Formula {
   toTextual() {
     return this.name;
   }
+
 
   getSubFormulas() {
     return [this];

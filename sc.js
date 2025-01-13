@@ -1,25 +1,44 @@
 const { FormulaParser } = require("./parser");
-const Node = require("./node");
+const { Node } = require("./node");
 
+/*
+  returns true or false for isSAT for current node
+*/
 function build(node) {
+
+  // if nose is contradcitory set of formulas ( if it has formula and its negation) we close it
+
   if (node.isAnObviouslyContradictorySetOfFormulas()) {
     node.isClosed = true;
     node.isSAT = false;
     return false;
   }
 
+
+  // if it is not an obviously contradictory set of formulas we check for witnesses
+  // witnesses can be in form of double negation witness, conjuction witness and negation conjuction witness
+
+  /* Each time we find a witness we call build with added successors */
+
   let doubleNegationWittness = node.findDoubleNegationWitness();
+
+  console.log('double negation witness', doubleNegationWittness);
+  console.log('-------------------------------------------');
 
   if (doubleNegationWittness) {
     let successor = node.createSuccessor(
       doubleNegationWittness.formula.formula,
       false
     );
+
     successor.isSAT = build(successor);
     return successor.isSAT;
   }
 
   let conjuctionWitness = node.findConjunction();
+
+    console.log("conjutciton witness", conjuctionWitness);
+    console.log("-------------------------------------------");
 
   if (conjuctionWitness) {
     let toBeAdded = [];
@@ -40,7 +59,10 @@ function build(node) {
 
   let negationConjuctionWitness = node.findConjunctionNegation();
 
-  if (negationConjuctionWitness[0]) {
+      console.log("negation conjutction witness", negationConjuctionWitness);
+      console.log("-------------------------------------------");
+
+  if (n6) {
     if (negationConjuctionWitness[1] && negationConjuctionWitness[2]) {
       let successor1 = node.createSuccessor(negationConjuctionWitness[1], true);
       successor1.isSAT = build(successor1);
@@ -63,9 +85,18 @@ function build(node) {
     return false;
   }
 
+  /*
+    After we checked for
+  */
+
   node.isTablo = true;
   let mfWitness = node.findExtendedTabloWitness();
 
+
+  /*
+    We check if tablo is completely exapnded, if it is not, we create successors for witnessess
+    and call build recursively on them
+  */
   if (mfWitness[0]) {
     if (mfWitness[1] && mfWitness[2]) {
       let successor1 = node.createSuccessor(mfWitness[1], true);
@@ -84,6 +115,7 @@ function build(node) {
         return true;
       }
     }
+
     node.isSAT = false;
     return false;
   }
@@ -101,6 +133,7 @@ function build(node) {
       let modalF = negationF.formula;
       let phi = modalF.formula;
       let formulaNegation = phi.getNegation();
+      console.log('modalF.operator', modalF.operator);
       let reducedSet = node.getReducedSet(modalF.operator);
       let successor = node.createISuccessor(reducedSet, formulaNegation);
       successor.isSAT = build(successor);
@@ -120,27 +153,23 @@ function build(node) {
 }
 
 function KmSAT(formula) {
-  let root = new Node.Node(formula.toTextual(), [formula], false);
+  let root = new Node(formula.toTextual(), [formula], false);
   root.isSAT = build(root);
   // root.print();
   return root.isSAT;
 }
 
-function main() {
-  let input = "(a&!b)&b";
-  try {
-    let rootFormula = new FormulaParser(input).parse();
-    console.log("rootFormula = ", rootFormula);
-    let result = KmSAT(rootFormula);
-    console.log(
-      "\n--------------------------------\nZadovoljivost formule: ",
-      result
-    );
-  } catch (e) {
-    // there could be errors for invalid input with invalid order of elements
-    // or invalid operators
-    console.log(e);
-  }
+let input = "(a&!b)&b&a";
+try {
+  let rootFormula = new FormulaParser(input).parse();
+  console.log("rootFormula = ", rootFormula);
+  let result = KmSAT(rootFormula);
+  console.log(
+    "\n--------------------------------\nZadovoljivost formule: ",
+    result
+  );
+} catch (e) {
+  // there could be errors for invalid input with invalid order of elements
+  // or invalid operators
+  console.log(e);
 }
-
-main();

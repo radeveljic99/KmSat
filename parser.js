@@ -22,12 +22,9 @@ class FormulaParser {
   }
 
   parseFormula() {
-    console.log("calling parse formula");
     let f1 = this.parseFirstFormula();
-    console.log("f1 = ", f1);
     if (f1 == null) return null;
     let f2 = this.parseSecondFormula();
-    console.log("f2 = ", f2);
     if (f2 == null) return f1;
     return new BinaryOperatorFormula(f1, "&", f2);
   }

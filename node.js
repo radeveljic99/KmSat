@@ -2,7 +2,7 @@ const Formulas = require("./formula");
 
 class Node {
   constructor(formulaString, formulas, parent) {
-    this.parent = parent;
+    this.parent = parent; // reference to parent node
     this.label = formulaString;
     this.isSAT = false;
     this.formulas = formulas;
@@ -84,16 +84,21 @@ class Node {
 
     for (i = 0; i < this.formulas.length; i++) {
       formula = this.formulas[i];
-      if (formula.isDoubleNegation()) {
-        if (!this.contains(formula.formula.formula)) {
-          return formula;
-        }
+
+      if (
+        formula.isDoubleNegation() &&
+        !this.contains(formula.formula.formula)
+      ) {
+        return formula;
       }
     }
 
     return false;
   }
 
+  /*
+    @returns false if no conjuciton witness is found, or formulas if it is found
+  */
   findConjunction() {
     let i, formula;
 
@@ -106,8 +111,13 @@ class Node {
         }
       }
     }
+
     return false;
   }
+
+  /*
+    @returns array [boolean (if we have conjuction negatin), firstFormula, secondFormula ]
+  */
 
   findConjunctionNegation() {
     let i, formula;
@@ -138,6 +148,9 @@ class Node {
     return [false, false, false];
   }
 
+  /*
+      @returns array [boolean (if we have extended tablo witness), firstFormula, second
+  */
   findExtendedTabloWitness() {
     let i, formula, j, sf;
 
@@ -154,6 +167,7 @@ class Node {
         }
       }
     }
+
     return [false, false, false];
   }
 
@@ -197,6 +211,9 @@ class Node {
     return reducedSet;
   }
 
+  /* 
+    Find formulas of the form !K<number> if they exist
+  */
   findNKF() {
     let nKFormulas = [];
     let i, formula;
@@ -215,6 +232,9 @@ class Node {
     return nKFormulas;
   }
 
+  /*
+    @returns true if formula is in formulas, false otherwise
+  */ 
   contains(formula) {
     let i, currentFormula;
 
@@ -229,18 +249,24 @@ class Node {
   }
 
   isAnObviouslyContradictorySetOfFormulas() {
-    let i, j, f1, f2;
-    for (i = 0; i < this.formulas.length; i++) {
+    let f1, f2;
+
+    // we check if formula and its negation are in formulas
+    // if formula and it's negation are in formulas, we return true, else we return false
+
+    for (let i = 0; i < this.formulas.length; i++) {
       f1 = this.formulas[i];
-      for (j = 0; j < this.formulas.length; j++) {
+      for (let j = 0; j < this.formulas.length; j++) {
         if (i != j) {
           f2 = this.formulas[j];
+
           if (f1.isNegationOf(f2)) {
             return true;
           }
         }
       }
     }
+
     return false;
   }
 }
