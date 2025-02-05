@@ -62,7 +62,7 @@ function build(node) {
       console.log("negation conjutction witness", negationConjuctionWitness);
       console.log("-------------------------------------------");
 
-  if (n6) {
+  if (negationConjuctionWitness[0]) {
     if (negationConjuctionWitness[1] && negationConjuctionWitness[2]) {
       let successor1 = node.createSuccessor(negationConjuctionWitness[1], true);
       successor1.isSAT = build(successor1);
@@ -85,9 +85,7 @@ function build(node) {
     return false;
   }
 
-  /*
-    After we checked for
-  */
+  
 
   node.isTablo = true;
   let mfWitness = node.findExtendedTabloWitness();
@@ -159,7 +157,7 @@ function KmSAT(formula) {
   return root.isSAT;
 }
 
-let input = "(a&!b)&b&a";
+let input = "(a&b)&b&a";
 try {
   let rootFormula = new FormulaParser(input).parse();
   console.log("rootFormula = ", rootFormula);
